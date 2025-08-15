@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Share My Location</title>
+</head>
+<body>
+  <h1>Share My Location</h1>
+  <input id="note" placeholder="Optional note" />
+  <button id="btn">Share My Location</button>
+  <p id="status"></p>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw0UI4szknCgsFqmUEGh8DOriCuUHjxBXpgGDlZWG0n7o8BMHXIdMkWvgAKm0RCvyuy/exec"; // from Apps Script
+
+    document.getElementById('btn').onclick = () => {
+      if (!navigator.geolocation) {
+        document.getElementById('status').innerText = 'Geolocation not supported';
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const payload = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          note: document.getElementById('note').value
+        };
+        fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(res => {
+          document.getElementById('status').innerText = '✅ Saved successfully!';
+        })
+        .catch(err => {
+          document.getElementById('status').innerText = '❌ Error: ' + err;
+        });
+      }, err => {
+        document.getElementById('status').innerText = '❌ Location error: ' + err.message;
+      });
+    };
+  </script>
+</body>
+</html>
